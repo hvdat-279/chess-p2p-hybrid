@@ -1,0 +1,4 @@
+package com.example.chess_project_p2p_hybrid.client.model.board;
+
+public class Board {
+}

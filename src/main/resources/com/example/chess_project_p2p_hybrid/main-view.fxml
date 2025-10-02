@@ -1,14 +1,277 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.chess_project_p2p_hybrid.client.controller.MainController"
-            prefHeight="400.0" prefWidth="600.0">
 
-</AnchorPane>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0"
+           prefWidth="1300.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.example.chess_project_p2p_hybrid.client.controller.MainController">
+    <children>
+        <AnchorPane>
+            <children>
+
+                <!-- 1. Sidebar trái (VBox) -->
+                <VBox prefHeight="750.0" prefWidth="200.0" style="-fx-background-color: #2c3e50; -fx-padding: 10 0;">
+                    <children>
+                        <Label alignment="CENTER" prefHeight="60.0" prefWidth="200.0"
+                               style="-fx-text-fill: white; -fx-padding: 20 0; -fx-font-weight: bold;" text="Chess App">
+                            <font>
+                                <Font name="System Bold" size="30.0"/>
+                            </font>
+                        </Label>
+                        <Button fx:id="homeButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0"
+                                style="-fx-text-fill: #ecf0f1; -fx-background-color: transparent; -fx-font-size: 18px; -fx-alignment: center-left; -fx-padding: 15 30; -fx-max-width: infinity;"
+                                text="Home">
+                            <font>
+                                <Font size="25.0"/>
+                            </font>
+                        </Button>
+                        <Button fx:id="pvpButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0"
+                                style="-fx-text-fill: #ecf0f1; -fx-background-color: transparent; -fx-font-size: 18px; -fx-alignment: center-left; -fx-padding: 15 30; -fx-max-width: infinity;"
+                                text="PvP">
+                            <font>
+                                <Font size="25.0"/>
+                            </font>
+                        </Button>
+                        <Button fx:id="pvcButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0"
+                                style="-fx-text-fill: #ecf0f1; -fx-background-color: transparent; -fx-font-size: 18px; -fx-alignment: center-left; -fx-padding: 15 30; -fx-max-width: infinity;"
+                                text="PvC">
+                            <font>
+                                <Font size="25.0"/>
+                            </font>
+                        </Button>
+                        <Button fx:id="chatButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0"
+                                style="-fx-text-fill: #ecf0f1; -fx-background-color: transparent; -fx-font-size: 18px; -fx-alignment: center-left; -fx-padding: 15 30; -fx-max-width: infinity;"
+                                text="Chat Room">
+                            <font>
+                                <Font size="25.0"/>
+                            </font>
+                        </Button>
+                        <Button fx:id="howToPlayButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0"
+                                style="-fx-text-fill: #ecf0f1; -fx-background-color: transparent; -fx-font-size: 18px; -fx-alignment: center-left; -fx-padding: 15 30; -fx-max-width: infinity;"
+                                text="How to Play">
+                            <font>
+                                <Font size="25.0"/>
+                            </font>
+                        </Button>
+                        <Pane VBox.vgrow="ALWAYS"/>
+                        <Button fx:id="exitButton" mnemonicParsing="false" prefHeight="50.0"
+                                prefWidth="200.0"
+                                style="-fx-text-fill: #e74c3c; -fx-background-color: transparent; -fx-font-size: 18px; -fx-alignment: center-left; -fx-padding: 15 30; -fx-max-width: infinity; -fx-border-color: #e74c3c; -fx-border-width: 0 0 0 5;"
+                                text="Exit">
+                            <font>
+                                <Font size="25.0"/>
+                            </font>
+                            <VBox.margin>
+                                <Insets bottom="10.0" />
+                            </VBox.margin>
+                        </Button>
+                    </children>
+                </VBox>
+
+                <!-- 2. Bàn cờ chính (Khu vực giữa) -->
+                <AnchorPane layoutX="200.0" prefHeight="750.0" prefWidth="750.0" style="-fx-background-color: #bdc3c7;">
+                    <VBox alignment="CENTER" prefHeight="750.0" prefWidth="750.0">
+
+                        <!-- Tên Người chơi ĐEN (Trên) -->
+                        <AnchorPane prefHeight="26.0" prefWidth="750.0"
+                                    style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #333333; ">
+                            <children>
+                                <Label fx:id="blackPlayerName" alignment="CENTER_LEFT" layoutX="73.0" layoutY="5.0"
+                                       maxWidth="Infinity" text="Player 2 (BLACK):"/>
+                                <Label fx:id="lNameBlack" alignment="CENTER_LEFT" layoutX="240.0" layoutY="6.0"
+                                       maxWidth="Infinity" text="Player"/>
+                            </children>
+                        </AnchorPane>
+
+                        <!-- KHU VỰC BÀN CỜ VÀ TỌA ĐỘ -->
+                        <GridPane alignment="CENTER" hgap="0" prefHeight="650.0" prefWidth="650.0" vgap="0">
+                            <!-- Column Constraints: 25px | 600px | 25px. Bàn cờ 8x75px = 600px -->
+                            <columnConstraints>
+                                <ColumnConstraints halignment="CENTER" minWidth="25.0" prefWidth="25.0"/>
+                                <ColumnConstraints halignment="CENTER" minWidth="600.0" prefWidth="600.0"/>
+                                <ColumnConstraints halignment="CENTER" minWidth="25.0" prefWidth="25.0"/>
+                            </columnConstraints>
+                            <!-- Row Constraints: 25px | 600px | 25px -->
+                            <rowConstraints>
+                                <RowConstraints minHeight="25.0" prefHeight="25.0" valignment="CENTER"/>
+                                <RowConstraints minHeight="600.0" prefHeight="600.0" valignment="CENTER"/>
+                                <RowConstraints minHeight="25.0" prefHeight="25.0" valignment="CENTER"/>
+                            </rowConstraints>
+
+
+                            <!-- pref-height = 600 / 8 = 75.0 bên trái-->
+                            <VBox alignment="CENTER_RIGHT" style=" -fx-padding: 0 5 0 0;" GridPane.columnIndex="0"
+                                  GridPane.rowIndex="1">
+                                <Label alignment="CENTER_RIGHT"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-height: 75.0;"
+                                       text="8"/>
+                                <Label alignment="CENTER_RIGHT"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-height: 75.0;"
+                                       text="7"/>
+                                <Label alignment="CENTER_RIGHT"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-height: 75.0;"
+                                       text="6"/>
+                                <Label alignment="CENTER_RIGHT"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-height: 75.0;"
+                                       text="5"/>
+                                <Label alignment="CENTER_RIGHT"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-height: 75.0;"
+                                       text="4"/>
+                                <Label alignment="CENTER_RIGHT"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-height: 75.0;"
+                                       text="3"/>
+                                <Label alignment="CENTER_RIGHT"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-height: 75.0;"
+                                       text="2"/>
+                                <Label alignment="CENTER_RIGHT"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-height: 75.0;"
+                                       text="1"/>
+                            </VBox>
+
+                            <!-- BÀN CỜ CHÍNH (GridPane) -->
+                            <GridPane fx:id="chessBoard" gridLinesVisible="true" prefHeight="600" prefWidth="600"
+                                      GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="12.5"/>
+                                    <ColumnConstraints percentWidth="12.5"/>
+                                    <ColumnConstraints percentWidth="12.5"/>
+                                    <ColumnConstraints percentWidth="12.5"/>
+                                    <ColumnConstraints percentWidth="12.5"/>
+                                    <ColumnConstraints percentWidth="12.5"/>
+                                    <ColumnConstraints percentWidth="12.5"/>
+                                    <ColumnConstraints percentWidth="12.5"/>
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints percentHeight="12.5"/>
+                                    <RowConstraints percentHeight="12.5"/>
+                                    <RowConstraints percentHeight="12.5"/>
+                                    <RowConstraints percentHeight="12.5"/>
+                                    <RowConstraints percentHeight="12.5"/>
+                                    <RowConstraints percentHeight="12.5"/>
+                                    <RowConstraints percentHeight="12.5"/>
+                                    <RowConstraints percentHeight="12.5"/>
+                                </rowConstraints>
+                            </GridPane>
+
+
+                            <!-- TỌA ĐỘ NGANG (A-H) Ở DƯỚI  -->
+                            <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                <Label alignment="CENTER"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-width: 75.0;"
+                                       text="A"/>
+                                <Label alignment="CENTER"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-width: 75.0;"
+                                       text="B"/>
+                                <Label alignment="CENTER"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-width: 75.0;"
+                                       text="C"/>
+                                <Label alignment="CENTER"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-width: 75.0;"
+                                       text="D"/>
+                                <Label alignment="CENTER"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-width: 75.0;"
+                                       text="E"/>
+                                <Label alignment="CENTER"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-width: 75.0;"
+                                       text="F"/>
+                                <Label alignment="CENTER"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-width: 75.0;"
+                                       text="G"/>
+                                <Label alignment="CENTER"
+                                       style="-fx-font-size: 14px; -fx-text-fill: #333333; -fx-pref-width: 75.0;"
+                                       text="H"/>
+                            </HBox>
+                        </GridPane>
+                        <AnchorPane prefHeight="33.0" prefWidth="750.0"
+                                    style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #333333; ">
+                            <children>
+                                <Label fx:id="whitePlayerName" alignment="CENTER_LEFT" layoutX="73.0" layoutY="-1.0"
+                                       maxWidth="Infinity" text="Player 1 (White):"/>
+                                <Label fx:id="lNameWhite" alignment="CENTER_LEFT" layoutX="232.0" layoutY="-1.0"
+                                       maxWidth="Infinity" text="Player"/>
+                            </children>
+                        </AnchorPane>
+                    </VBox>
+                </AnchorPane>
+
+                <!-- 3. Panel phải (AnchorPane) -->
+                <AnchorPane layoutX="950.0" prefHeight="750.0" prefWidth="350.0" style="-fx-background-color: #ecf0f1;">
+                    <VBox fx:id="rightPanelContainer" alignment="TOP_CENTER" prefHeight="750.0" prefWidth="350.0">
+                        <padding>
+                            <Insets top="20.0" left="20.0" right="20.0" bottom="20.0" />
+                        </padding>
+
+                        <!-- GIAO DIỆN CON 1: HOME/MATCHING VIEW (Mặc định được hiển thị) -->
+                        <VBox fx:id="homePanelView" alignment="TOP_CENTER" spacing="15" prefHeight="750.0" prefWidth="350.0">
+                            <Label text="Start Game" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                            <Button mnemonicParsing="false" prefWidth="250.0" prefHeight="50.0" text="Find Quick Match"
+                                    style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 8;">
+                                <VBox.margin>
+                                    <Insets top="10.0" />
+                                </VBox.margin>
+                            </Button>
+
+                            <Separator prefWidth="200.0">
+                                <VBox.margin>
+                                    <Insets top="10.0" bottom="10.0" />
+                                </VBox.margin>
+                            </Separator>
+
+                            <Label text="Join Private Room" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #34495e;" />
+                            <TextField promptText="Enter Room ID" prefWidth="250.0"
+                                       style="-fx-font-size: 16px; -fx-background-radius: 6; -fx-border-color: #bdc3c7; -fx-border-radius: 6; -fx-padding: 8;" />
+                            <Button mnemonicParsing="false" prefWidth="250.0" prefHeight="40.0" text="Join Room"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8;" />
+
+                            <Label text="Create New Room" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #34495e;">
+                                <VBox.margin>
+                                    <Insets top="20.0" />
+                                </VBox.margin>
+                            </Label>
+                            <Button mnemonicParsing="false" prefWidth="250.0" prefHeight="40.0" text="Create &amp; Get ID"
+                                    style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8;" />
+                        </VBox>
+
+                        <!-- GIAO DIỆN CON 2: GAME VIEW (Mặc định ẩn) -->
+                        <VBox fx:id="gamePanelView" alignment="TOP_LEFT" spacing="10" prefHeight="750.0" prefWidth="350.0" visible="false" managed="false">
+
+                            <Label text="Game Status" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+
+                            <!-- Hiển thị địa chỉ/ID phòng -->
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Room ID/IP:" style="-fx-font-size: 14px; -fx-font-weight: bold;" />
+                                <Label fx:id="roomIdLabel" text="[Not Connected]" style="-fx-font-size: 14px; -fx-text-fill: #e74c3c;" />
+                            </HBox>
+
+                            <!-- Lịch sử nước đi -->
+                            <Label text="Move History" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #34495e;">
+                                <VBox.margin>
+                                    <Insets top="15.0" />
+                                </VBox.margin>
+                            </Label>
+
+                            <!-- ListView để hiển thị các nước đi -->
+                            <ListView fx:id="moveListView" prefHeight="400.0" prefWidth="300.0" VBox.vgrow="ALWAYS" />
+
+                            <Button fx:id="resignButton" mnemonicParsing="false" prefWidth="250.0" prefHeight="40.0" text="Resign"
+                                    style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8;">
+                                <VBox.margin>
+                                    <Insets top="10.0" />
+                                </VBox.margin>
+                            </Button>
+
+                        </VBox>
+
+                    </VBox>
+                </AnchorPane>
+            </children>
+        </AnchorPane>
+    </children>
+</StackPane>
+

@@ -3,6 +3,7 @@ module com.example.chess_project_p2p_hybrid {
     requires javafx.fxml;
 
 
-    opens com.example.chess_project_p2p_hybrid to javafx.fxml;
+    opens com.example.chess_project_p2p_hybrid.client.controller to javafx.fxml;
+
     exports com.example.chess_project_p2p_hybrid;
 }
