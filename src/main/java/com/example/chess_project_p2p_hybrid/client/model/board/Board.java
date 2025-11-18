@@ -10,13 +10,7 @@ public class Board implements BoardView, Cloneable {
     // Ô mà quân tốt đối phương vừa đi 2 ô, dùng để bắt en passant
     private Position enPassantTarget = null;
 
-    // Cờ hiệu để kiểm tra xem vua và các xe đã di chuyển chưa (dùng cho nhập thành)
-    private boolean whiteKingMoved = false;
-    private boolean blackKingMoved = false;
-    private boolean whiteKingRookMoved = false; // rook at h1
-    private boolean whiteQueenRookMoved = false; // rook at a1
-    private boolean blackKingRookMoved = false; // rook at h8
-    private boolean blackQueenRookMoved = false; // rook at a8
+    // Cờ nhập thành được xác định qua piece.hasMoved(), không dùng biến rời
 
     // Thiết lập vị trí ban đầu
     public Board() {
@@ -97,8 +91,13 @@ public class Board implements BoardView, Cloneable {
                 Piece p = board[r][c];
                 if (p != null && p.getColor() != color) {
                     Position from = Position.of(r, c);
-                    for (var mv : p.generateMoves(from, this)) {
-                        if (mv.getTo().equals(kingPos)) return true;
+                    // Tránh đệ quy: riêng KING, tính ô tấn công trực tiếp (không xét nhập thành)
+                    if (p.getType() == PieceType.KING) {
+                        if (kingAdjacentAttacks(from, kingPos)) return true;
+                    } else {
+                        for (var mv : p.generateMoves(from, this)) {
+                            if (mv.getTo().equals(kingPos)) return true;
+                        }
                     }
                 }
             }
@@ -157,11 +156,29 @@ public class Board implements BoardView, Cloneable {
                 Piece p = board[r][c];
                 if (p != null && p.getColor() == byColor) {
                     Position from = Position.of(r, c);
-                    for (var mv : p.generateMoves(from, this)) {
-                        if (mv.getTo().equals(pos)) return true;
+                    if (p.getType() == PieceType.KING) {
+                        if (kingAdjacentAttacks(from, pos)) return true;
+                    } else {
+                        for (var mv : p.generateMoves(from, this)) {
+                            if (mv.getTo().equals(pos)) return true;
+                        }
                     }
                 }
             }
+        return false;
+    }
+
+    private boolean kingAdjacentAttacks(Position from, Position target) {
+        int[][] DELTAS = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1},           {0, 1},
+                {1, -1},  {1, 0},  {1, 1}
+        };
+        for (int[] d : DELTAS) {
+            Position to = Position.of(from.row() + d[0], from.col() + d[1]);
+            if (!to.isValid()) continue;
+            if (to.equals(target)) return true;
+        }
         return false;
     }
 
@@ -254,19 +271,20 @@ public class Board implements BoardView, Cloneable {
 
     @Override
     public Board clone() {
-        try {
-            Board copy = (Board) super.clone();
-            // Sao chép mảng piece
-            for (int r = 0; r < 8; r++)
-                for (int c = 0; c < 8; c++) {
-                    Piece p = this.board[r][c];
-                    copy.board[r][c] = (p == null) ? null : p.clone();
-                }
+        // Tạo Board mới rồi sao chép từng phần tử để tránh chia sẻ mảng nội bộ
+        Board copy = new Board();
+        // Xóa thiết lập mặc định từ constructor
+        for (int r = 0; r < 8; r++)
+            for (int c = 0; c < 8; c++)
+                copy.board[r][c] = null;
 
-            copy.enPassantTarget = this.enPassantTarget;
-            return copy;
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        for (int r = 0; r < 8; r++)
+            for (int c = 0; c < 8; c++) {
+                Piece p = this.board[r][c];
+                copy.board[r][c] = (p == null) ? null : p.clone();
+            }
+
+        copy.enPassantTarget = this.enPassantTarget;
+        return copy;
     }
 }

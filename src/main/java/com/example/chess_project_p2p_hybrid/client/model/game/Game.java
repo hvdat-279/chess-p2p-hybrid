@@ -29,6 +29,10 @@ public class Game {
     public GameResult getResult() {
         return result;
     }
+    
+    public void setResult(GameResult result) {
+        this.result = result;
+    }
 
     /**
      * Trả về danh sách legal moves (đã lọc không để vua bị chiếu).
@@ -81,10 +85,41 @@ public class Game {
         List<Move> legal = legalMovesFor(m.getFrom());
         if (!legal.contains(m)) return false;
 
+        applyMoveInternal(m);
+        return true;
+    }
+
+    private void applyMoveInternal(Move m) {
         board.applyMove(m);
         history.add(m);
-
         turn = turn.opposite();
+        computeResult();
+    }
+
+    public boolean applyRemoteMove(Move move) {
+        // dùng cho nước đi nhận từ network, giả định đã hợp lệ
+        board.applyMove(move);
+        history.add(move);
+        turn = turn.opposite();
+        computeResult();
+        return true;
+    }
+
+    public boolean undoLastMove() {
+        if (history.isEmpty()) return false;
+        history.remove(history.size() - 1);
+        Board fresh = new Board();
+        Color currentTurn = Color.WHITE;
+        List<Move> replay = new ArrayList<>(history);
+        history.clear();
+        this.board = fresh;
+        this.turn = Color.WHITE;
+        for (Move move : replay) {
+            board.applyMove(move);
+            history.add(move);
+            currentTurn = currentTurn.opposite();
+        }
+        this.turn = currentTurn;
         computeResult();
         return true;
     }

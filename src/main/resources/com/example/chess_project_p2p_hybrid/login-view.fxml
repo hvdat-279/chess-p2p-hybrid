@@ -1,31 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<<<<<<< HEAD
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-=======
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.geometry.*?>
->>>>>>> 6e43f23 (build src)
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.chess_project_p2p_hybrid.client.controller.LoginController"
-<<<<<<< HEAD
-            prefHeight="400.0" prefWidth="600.0">
-=======
-            prefWidth="400" prefHeight="250">
+            prefHeight="420.0" prefWidth="620.0">
 
-    <VBox alignment="CENTER" spacing="15.0" AnchorPane.topAnchor="20" AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20">
-        <Label text="Chess Project - Login" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-        <TextField fx:id="usernameField" promptText="Enter username" maxWidth="250"/>
-        <PasswordField fx:id="passwordField" promptText="Enter password" maxWidth="250"/>
-        <Button fx:id="loginButton" text="Login" maxWidth="120"/>
+    <VBox alignment="CENTER" spacing="12"
+          AnchorPane.topAnchor="30" AnchorPane.bottomAnchor="30" AnchorPane.leftAnchor="40" AnchorPane.rightAnchor="40"
+          style="-fx-background-color: linear-gradient(to bottom right, #1e3c72, #2a5298); -fx-padding: 25; -fx-background-radius: 12;">
+
+        <Label text="P2P Hybrid Chess"
+               style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;"/>
+        <Label text="Nhập tên và thông tin server để đăng nhập"
+               style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 14px;"/>
+
+        <TextField fx:id="playerNameField" promptText="Tên người chơi" maxWidth="320"
+                   style="-fx-background-radius: 8; -fx-padding: 10;"/>
+
+        <HBox spacing="10" alignment="CENTER">
+            <TextField fx:id="hostField" promptText="Server host" prefWidth="180"
+                       text="127.0.0.1"
+                       style="-fx-background-radius: 8; -fx-padding: 10;"/>
+            <TextField fx:id="portField" promptText="Port" prefWidth="100" text="9998"
+                       style="-fx-background-radius: 8; -fx-padding: 10;"/>
+        </HBox>
+
+        <Button fx:id="connectButton" text="Kết nối"
+                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8;"
+                maxWidth="200"/>
+
+        <Label fx:id="statusLabel" textFill="white"/>
     </VBox>
->>>>>>> 6e43f23 (build src)
 
 </AnchorPane>
+

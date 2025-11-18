@@ -210,7 +210,7 @@
                         <!-- GIAO DIỆN CON 1: HOME/MATCHING VIEW (Mặc định được hiển thị) -->
                         <VBox fx:id="homePanelView" alignment="TOP_CENTER" spacing="15" prefHeight="750.0" prefWidth="350.0">
                             <Label text="Start Game" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-                            <Button mnemonicParsing="false" prefWidth="250.0" prefHeight="50.0" text="Find Quick Match"
+                            <Button fx:id="quickMatchButton" mnemonicParsing="false" prefWidth="250.0" prefHeight="50.0" text="Find Quick Match"
                                     style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 8;">
                                 <VBox.margin>
                                     <Insets top="10.0" />
@@ -224,9 +224,9 @@
                             </Separator>
 
                             <Label text="Join Private Room" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #34495e;" />
-                            <TextField promptText="Enter Room ID" prefWidth="250.0"
+                            <TextField fx:id="joinRoomField" promptText="Enter Room ID" prefWidth="250.0"
                                        style="-fx-font-size: 16px; -fx-background-radius: 6; -fx-border-color: #bdc3c7; -fx-border-radius: 6; -fx-padding: 8;" />
-                            <Button mnemonicParsing="false" prefWidth="250.0" prefHeight="40.0" text="Join Room"
+                            <Button fx:id="joinRoomButton" mnemonicParsing="false" prefWidth="250.0" prefHeight="40.0" text="Join Room"
                                     style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8;" />
 
                             <Label text="Create New Room" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #34495e;">
@@ -234,7 +234,7 @@
                                     <Insets top="20.0" />
                                 </VBox.margin>
                             </Label>
-                            <Button mnemonicParsing="false" prefWidth="250.0" prefHeight="40.0" text="Create &amp; Get ID"
+                            <Button fx:id="createRoomButton" mnemonicParsing="false" prefWidth="250.0" prefHeight="40.0" text="Create &amp; Get ID"
                                     style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8;" />
                         </VBox>
 
@@ -242,6 +242,14 @@
                         <VBox fx:id="gamePanelView" alignment="TOP_LEFT" spacing="10" prefHeight="750.0" prefWidth="350.0" visible="false" managed="false">
 
                             <Label text="Game Status" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Turn:" style="-fx-font-size: 14px; -fx-font-weight: bold;" />
+                                <Label fx:id="turnLabel" text="WHITE" style="-fx-font-size: 14px;" />
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Status:" style="-fx-font-size: 14px; -fx-font-weight: bold;" />
+                                <Label fx:id="statusLabel" text="ONGOING" style="-fx-font-size: 14px;" />
+                            </HBox>
 
                             <!-- Hiển thị địa chỉ/ID phòng -->
                             <HBox spacing="10" alignment="CENTER_LEFT">
@@ -259,12 +267,29 @@
                             <!-- ListView để hiển thị các nước đi -->
                             <ListView fx:id="moveListView" prefHeight="400.0" prefWidth="300.0" VBox.vgrow="ALWAYS" />
 
+                            <Button fx:id="undoButton" mnemonicParsing="false" prefWidth="250.0" prefHeight="40.0" text="Undo Last Move"
+                                    style="-fx-background-color: #8e44ad; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8;">
+                                <VBox.margin>
+                                    <Insets top="10.0" />
+                                </VBox.margin>
+                            </Button>
+
                             <Button fx:id="resignButton" mnemonicParsing="false" prefWidth="250.0" prefHeight="40.0" text="Resign"
                                     style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8;">
                                 <VBox.margin>
                                     <Insets top="10.0" />
                                 </VBox.margin>
                             </Button>
+
+                            <Button fx:id="newGameButton" mnemonicParsing="false" prefWidth="250.0" prefHeight="40.0" text="New Game"
+                                    style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8;">
+                                <VBox.margin>
+                                    <Insets top="5.0" />
+                                </VBox.margin>
+                            </Button>
+
+                            <Label fx:id="tipLabel" wrapText="true" text="Tip: Nhấp vào quân để xem các nước đi hợp lệ."
+                                   style="-fx-text-fill: #2c3e50; -fx-font-size: 13px;" />
 
                         </VBox>
 

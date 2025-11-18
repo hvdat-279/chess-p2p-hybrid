@@ -46,7 +46,15 @@ public class Pawn extends Piece {
         Position one = Position.of(from.row() + dir, from.col());
         if (one.isValid() && b.isEmpty(one)) {
             boolean promote = one.row() == promotionRow;// đến hàng cuối → phong cấp
-            moves.add(Move.normal(from, one, promote ? PieceType.QUEEN : null));
+            if (promote) {
+                // sinh đủ 4 lựa chọn phong cấp
+                moves.add(Move.normal(from, one, PieceType.QUEEN));
+                moves.add(Move.normal(from, one, PieceType.ROOK));
+                moves.add(Move.normal(from, one, PieceType.BISHOP));
+                moves.add(Move.normal(from, one, PieceType.KNIGHT));
+            } else {
+                moves.add(Move.normal(from, one, null));
+            }
             // Hai ô từ vị trí xuất phát
             Position two = Position.of(from.row() + 2 * dir, from.col());
             if (from.row() == startRow && two.isValid() && b.isEmpty(two)) {
@@ -60,7 +68,14 @@ public class Pawn extends Piece {
             Position cap = Position.of(from.row() + dir, from.col() + d);
             if (cap.isValid() && b.isEnemyPiece(cap, color)) {
                 boolean promote = cap.row() == promotionRow;
-                moves.add(Move.capture(from, cap, promote ? PieceType.QUEEN : null));
+                if (promote) {
+                    moves.add(Move.capture(from, cap, PieceType.QUEEN));
+                    moves.add(Move.capture(from, cap, PieceType.ROOK));
+                    moves.add(Move.capture(from, cap, PieceType.BISHOP));
+                    moves.add(Move.capture(from, cap, PieceType.KNIGHT));
+                } else {
+                    moves.add(Move.capture(from, cap, null));
+                }
             }
         }
 

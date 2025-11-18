@@ -3,10 +3,13 @@ package com.example.chess_project_p2p_hybrid.client.model.game;
 import com.example.chess_project_p2p_hybrid.client.model.board.Position;
 import com.example.chess_project_p2p_hybrid.client.model.piece.PieceType;
 
+import com.google.gson.Gson;
+
 import java.io.Serializable;
 import java.util.Objects;
 
 public class Move implements Serializable {
+    private static final Gson GSON = new Gson();
 
     private final Position from;
     private final Position to;
@@ -64,6 +67,14 @@ public class Move implements Serializable {
 
     public PieceType getPromotionTo() {
         return promotionTo;
+    }
+
+    public String toJson() {
+        return GSON.toJson(this);
+    }
+
+    public static Move fromJson(String json) {
+        return GSON.fromJson(json, Move.class);
     }
 
     @Override
