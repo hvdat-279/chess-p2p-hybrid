@@ -13,18 +13,19 @@ import javafx.stage.Stage;
 public final class SceneNavigator {
     private static Stage primaryStage;
 
-    private SceneNavigator() {}
+    private SceneNavigator() {
+    }
 
     public static void setPrimaryStage(Stage stage) {
         primaryStage = stage;
     }
 
     public static void showLoginScene() {
-        setScene("login-view.fxml", "P2P Hybrid Chess - Login");
+        setScene("login-view.fxml", "Cờ vua P2P Hybrid - Đăng nhập");
     }
 
     public static void showMainScene() {
-        setScene("main-view.fxml", "P2P Hybrid Chess");
+        setScene("main-view.fxml", "Cờ vua P2P Hybrid");
     }
 
     public static void showChatWindow() {
@@ -32,7 +33,7 @@ public final class SceneNavigator {
             FXMLLoader loader = new FXMLLoader(ChessApp.class.getResource("chat-view.fxml"));
             Parent root = loader.load();
             Stage stage = new Stage();
-            stage.setTitle("Chat Room");
+            stage.setTitle("Phòng chat");
             stage.setScene(new Scene(root));
             stage.initOwner(primaryStage);
             stage.initModality(Modality.NONE);
@@ -54,4 +55,3 @@ public final class SceneNavigator {
         }
     }
 }
-

@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.chess_project_p2p_hybrid.client.controller.ChatController"
-            prefHeight="400.0" prefWidth="600.0">
+            prefHeight="420.0" prefWidth="620.0" style="-fx-background-color: #eef2f7;">
 
+    <VBox spacing="12" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20"
+          AnchorPane.bottomAnchor="20"
+          style="-fx-background-color: white; -fx-padding: 18; -fx-background-radius: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3);">
 
-<VBox spacing="10" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Phòng chat" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <Label text="Gửi tin nhắn tới đối thủ" style="-fx-text-fill: #7f8c8d;"/>
+        </HBox>
 
-        <Label text="Chat Room" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-
-        <ListView fx:id="messageList" prefHeight="300"/>
+        <ListView fx:id="messageList" prefHeight="320"
+                  style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #e1e7f0;"/>
 
         <HBox spacing="10">
-            <TextField fx:id="messageField" promptText="Type your message..." HBox.hgrow="ALWAYS"/>
-            <Button fx:id="sendButton" text="Send"/>
+            <TextField fx:id="messageField" promptText="Nhập tin nhắn..." HBox.hgrow="ALWAYS"
+                       style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #d1dbe8; -fx-padding: 10;"/>
+            <Button fx:id="sendButton" text="Gửi"
+                    style="-fx-background-color: linear-gradient(to right, #27ae60, #2ecc71); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;"/>
         </HBox>
 
     </VBox>

@@ -1,28 +1,28 @@
 package com.example.chess_project_p2p_hybrid.client.util;
 
-import com.example.chess_project_p2p_hybrid.client.connection.Peer;
+import com.example.chess_project_p2p_hybrid.client.ChessClient;
 import com.example.chess_project_p2p_hybrid.client.connection.MessageHandler;
 import com.example.chess_project_p2p_hybrid.client.model.piece.Color;
 import com.example.chess_project_p2p_hybrid.client.controller.MainController;
 import com.example.chess_project_p2p_hybrid.client.controller.ChatController;
 
 /**
- * Lưu trữ thông tin phiên làm việc của client sau khi đăng nhập.
- * Được dùng chung giữa các controller (Login, Main, Chat).
+ * Lưu trữ thông tin phiên làm việc của client.
+ * Updated: Sử dụng ChessClient thay cho ConnectionManager cũ.
  */
 public final class ClientSession {
     private static final ClientSession INSTANCE = new ClientSession();
 
-    private Peer peer;
+    private ChessClient chessClient;
     private String playerName;
-    private String opponentName = "Waiting...";
+    private String opponentName = null;
     private String roomId;
     private Color playerColor = Color.WHITE;
     private MessageHandler messageHandler;
     private MainController mainController;
     private ChatController chatController;
-    private boolean newGameRequestPending = false; // Đang chờ đối thủ đồng ý
-    private String newGameRequestFrom = null; // Ai đã gửi request
+    private boolean newGameRequestPending = false;
+    private String newGameRequestFrom = null;
 
     private ClientSession() {}
 
@@ -30,16 +30,18 @@ public final class ClientSession {
         return INSTANCE;
     }
 
-    public void attachPeer(Peer peer) {
-        this.peer = peer;
+    public void setChessClient(ChessClient client) {
+        this.chessClient = client;
     }
 
-    public Peer getPeer() {
-        return peer;
+    public ChessClient getChessClient() {
+        return chessClient;
     }
 
     public boolean isConnected() {
-        return peer != null && peer.isConnected();
+        // Tạm thời coi như connected nếu chessClient đã được khởi tạo
+        // Logic check connection chi tiết nằm trong ChessClient
+        return chessClient != null;
     }
 
     public void setPlayerName(String playerName) {
@@ -76,9 +78,6 @@ public final class ClientSession {
 
     public void setMessageHandler(MessageHandler handler) {
         this.messageHandler = handler;
-        if (peer != null) {
-            peer.setHandler(handler);
-        }
     }
 
     public MessageHandler getMessageHandler() {
@@ -123,10 +122,10 @@ public final class ClientSession {
     }
 
     public void disconnect() {
-        if (peer != null) {
-            peer.close();
+        if (chessClient != null) {
+            chessClient.shutdown();
         }
-        peer = null;
+        chessClient = null;
         opponentName = "Waiting...";
         roomId = null;
         playerColor = Color.WHITE;
@@ -135,4 +134,3 @@ public final class ClientSession {
         clearNewGameRequest();
     }
 }
-

@@ -15,6 +15,10 @@ public class Move implements Serializable {
     private final Position to;
     private final MoveType type;
     private final PieceType promotionTo; // null nếu ko phải promotion
+    
+    // Time sync fields (seconds)
+    private int whiteTime = -1;
+    private int blackTime = -1;
 
     public Move(Position from, Position to, MoveType type, PieceType promotionTo) {
         this.from = from;
@@ -22,6 +26,14 @@ public class Move implements Serializable {
         this.type = type;
         this.promotionTo = promotionTo;
     }
+
+    public void setTimes(int whiteTime, int blackTime) {
+        this.whiteTime = whiteTime;
+        this.blackTime = blackTime;
+    }
+
+    public int getWhiteTime() { return whiteTime; }
+    public int getBlackTime() { return blackTime; }
 
     // Bình thường hoặc phong cấp.
     public static Move normal(Position f, Position t, PieceType promotion) {
@@ -80,6 +92,38 @@ public class Move implements Serializable {
     @Override
     public String toString() {
         return type + " " + from + "->" + to + (promotionTo != null ? ("=" + promotionTo) : "");
+    }
+    
+    public String toAlgebraicNotation() {
+        // Basic implementation: e2e4, Nf3, etc.
+        // For full algebraic notation (e.g. Nbd7), we need board state context which Move doesn't have.
+        // So we will use a simplified "Long Algebraic Notation" or just coordinate notation with piece info.
+        
+        String fromStr = toCoordinate(from);
+        String toStr = toCoordinate(to);
+        
+        if (type == MoveType.CASTLE_KINGSIDE) return "O-O";
+        if (type == MoveType.CASTLE_QUEENSIDE) return "O-O-O";
+        
+        String promo = (promotionTo != null) ? "=" + pieceTypeToChar(promotionTo) : "";
+        
+        return fromStr + (type == MoveType.CAPTURE || type == MoveType.EN_PASSANT ? "x" : "-") + toStr + promo;
+    }
+    
+    private String toCoordinate(Position p) {
+        char col = (char) ('a' + p.col());
+        int row = 8 - p.row();
+        return "" + col + row;
+    }
+    
+    private String pieceTypeToChar(PieceType type) {
+        return switch (type) {
+            case QUEEN -> "Q";
+            case ROOK -> "R";
+            case BISHOP -> "B";
+            case KNIGHT -> "N";
+            default -> "";
+        };
     }
 
     @Override

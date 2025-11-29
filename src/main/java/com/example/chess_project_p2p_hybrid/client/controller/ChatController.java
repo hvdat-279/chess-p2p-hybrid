@@ -2,7 +2,7 @@ package com.example.chess_project_p2p_hybrid.client.controller;
 
 import com.example.chess_project_p2p_hybrid.client.connection.Message;
 import com.example.chess_project_p2p_hybrid.client.connection.MessageType;
-import com.example.chess_project_p2p_hybrid.client.connection.Peer;
+
 import com.example.chess_project_p2p_hybrid.client.util.ClientSession;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -14,9 +14,12 @@ import javafx.scene.control.TextField;
 
 public class ChatController {
 
-    @FXML private ListView<String> messageList;
-    @FXML private TextField messageField;
-    @FXML private Button sendButton;
+    @FXML
+    private ListView<String> messageList;
+    @FXML
+    private TextField messageField;
+    @FXML
+    private Button sendButton;
 
     private final ObservableList<String> messages = FXCollections.observableArrayList();
 
@@ -29,13 +32,14 @@ public class ChatController {
 
     private void sendMessage() {
         String text = messageField.getText();
-        if (text == null || text.isBlank()) return;
+        if (text == null || text.isBlank())
+            return;
         ClientSession session = ClientSession.getInstance();
-        Peer peer = session.getPeer();
-        if (peer != null && session.isConnected()) {
-            peer.send(new Message(session.getPlayerName(), session.getRoomId(), MessageType.CHAT, text));
+        if (session.isConnected()) {
+            // Gửi chat qua ChessClient (tự động chọn P2P hoặc Relay)
+            session.getChessClient().send(new Message(session.getPlayerName(), "opponent", MessageType.CHAT, text));
         }
-        appendMessage("Me: " + text);
+        appendMessage("Tôi: " + text);
         messageField.clear();
     }
 
