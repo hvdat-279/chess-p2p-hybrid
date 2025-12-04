@@ -256,7 +256,7 @@ public class MainController implements Initializable {
         if (homeButton != null)
             homeButton.setOnAction(e -> showHome());
         if (pvpButton != null)
-            pvpButton.setOnAction(e -> startGameView("[PvP nội bộ]"));
+            pvpButton.setOnAction(e -> startLocalGame());
         if (pvcButton != null)
             pvcButton.setOnAction(e -> startGameView("[PvC với máy]"));
         if (chatButton != null)
@@ -358,15 +358,18 @@ public class MainController implements Initializable {
         updateStatusLabels();
 
         // Gửi thông báo timeout cho đối thủ (nếu là local timeout của mình)
-        if (session.isConnected() && session.getPlayerColor() == loserColor) {
-            sendSystemEvent("timeout");
+        if (!session.isLocalGame() && session.isConnected() && session.getPlayerColor() == loserColor) {
+            JsonObject payload = new JsonObject();
+            payload.addProperty("event", "timeout");
+            payload.addProperty("from", session.getPlayerName());
+            sendSystemCommand(payload);
         }
     }
 
     private void handlePause() {
         if (game.getResult() != GameResult.ONGOING) return;
 
-        if (!session.isConnected()) {
+        if (session.isLocalGame() || !session.isConnected()) {
             setGamePaused(!isPaused);
             return;
         }
@@ -393,10 +396,16 @@ public class MainController implements Initializable {
 
             alert.showAndWait().ifPresent(type -> {
                 if (type == javafx.scene.control.ButtonType.OK) {
-                    sendSystemEvent("pause_accept");
+                    JsonObject payload = new JsonObject();
+                    payload.addProperty("event", "pause_accept");
+                    payload.addProperty("from", session.getPlayerName());
+                    sendSystemCommand(payload);
                     setGamePaused(true);
                 } else {
-                    sendSystemEvent("pause_reject");
+                    JsonObject payload = new JsonObject();
+                    payload.addProperty("event", "pause_reject");
+                    payload.addProperty("from", session.getPlayerName());
+                    sendSystemCommand(payload);
                 }
             });
         });
@@ -411,10 +420,16 @@ public class MainController implements Initializable {
 
             alert.showAndWait().ifPresent(type -> {
                 if (type == javafx.scene.control.ButtonType.OK) {
-                    sendSystemEvent("resume_accept");
+                    JsonObject payload = new JsonObject();
+                    payload.addProperty("event", "resume_accept");
+                    payload.addProperty("from", session.getPlayerName());
+                    sendSystemCommand(payload);
                     setGamePaused(false);
                 } else {
-                    sendSystemEvent("resume_reject");
+                    JsonObject payload = new JsonObject();
+                    payload.addProperty("event", "resume_reject");
+                    payload.addProperty("from", session.getPlayerName());
+                    sendSystemCommand(payload);
                 }
             });
         });
@@ -437,7 +452,10 @@ public class MainController implements Initializable {
     }
 
     private void handleExitRoom() {
-        if (!session.isConnected()) {
+        if (session.isLocalGame() || !session.isConnected()) {
+            // Local game - chỉ cần show home và enable lại buttons
+            session.setLocalGame(false);
+            updateButtonsForLocalGame(false);
             showHome();
             return;
         }
@@ -459,8 +477,13 @@ public class MainController implements Initializable {
             if (type == javafx.scene.control.ButtonType.OK) {
                 if (hasOpponent && isGameActive) {
                     handleResign(); // Tự động resign nếu đang chơi
+                } else {
+                    // Chỉ gửi leave_room nếu không resign (vì resign đã gửi rồi)
+                    JsonObject payload = new JsonObject();
+                    payload.addProperty("event", "leave_room");
+                    payload.addProperty("from", session.getPlayerName());
+                    sendSystemCommand(payload);
                 }
-                sendSystemEvent("leave_room");
                 
                 // Reset P2P connection to allow new connections later
                 if (session.getChessClient() != null) {
@@ -667,7 +690,8 @@ public class MainController implements Initializable {
         }
 
         // Kiểm tra nếu không phải lượt của mình (trong P2P mode)
-        if (session.isConnected() && session.getPlayerColor() != game.getTurn()) {
+        // Trong local game, cả 2 người đều có thể chơi
+        if (!session.isLocalGame() && session.isConnected() && session.getPlayerColor() != game.getTurn()) {
             draggedPiece.setStyle("-fx-opacity: 1.0; -fx-scale-x: 1.0; -fx-scale-y: 1.0;");
             draggedPiece.setLayoutX(0);
             draggedPiece.setLayoutY(0);
@@ -860,11 +884,97 @@ public class MainController implements Initializable {
     private void showHome() {
         setBoardInteractivity(false);
         setPlayerInfoVisible(false);
+        
+        // Clear local game flag và enable lại buttons
+        session.setLocalGame(false);
+        updateButtonsForLocalGame(false);
+        
         if (homePanelView != null && gamePanelView != null) {
             homePanelView.setVisible(true);
             homePanelView.setManaged(true);
             gamePanelView.setVisible(false);
             gamePanelView.setManaged(false);
+        }
+    }
+
+    /**
+     * Bắt đầu game local - 2 người chơi trên cùng 1 máy
+     */
+    private void startLocalGame() {
+        // Set flag local game
+        session.setLocalGame(true);
+        
+        // Set roomId để UI biết là đang trong game
+        if (roomIdLabel != null) {
+            roomIdLabel.setText("[Chơi nội bộ - 2 người]");
+        }
+        
+        // Set player names cho local game
+        session.setPlayerColor(Color.WHITE); // Không quan trọng trong local game
+        session.setRoomId("[Local]");
+        if (lNameWhite != null) {
+            lNameWhite.setText("Người chơi 1 (Trắng)");
+        }
+        if (lNameBlack != null) {
+            lNameBlack.setText("Người chơi 2 (Đen)");
+        }
+        
+        // Chuyển sang game view
+        if (homePanelView != null && gamePanelView != null) {
+            homePanelView.setVisible(false);
+            homePanelView.setManaged(false);
+            gamePanelView.setVisible(true);
+            gamePanelView.setManaged(true);
+        }
+        
+        // Disable các nút không cần thiết cho local game
+        updateButtonsForLocalGame(true);
+        
+        // Enable board
+        setBoardInteractivity(true);
+        setPlayerInfoVisible(true);
+        
+        // Reset game
+        resetGame(false, true); // Start timer for local game
+        
+        setTip("Chế độ chơi nội bộ: 2 người chơi trên cùng 1 máy. Trắng đi trước!");
+    }
+    
+    /**
+     * Update buttons dựa trên chế độ local game hay online game
+     */
+    private void updateButtonsForLocalGame(boolean isLocal) {
+        if (isLocal) {
+            // Disable các nút không cần cho local game
+            if (drawButton != null) {
+                drawButton.setDisable(true);
+                drawButton.setOpacity(0.5);
+                javafx.scene.control.Tooltip.install(drawButton, 
+                    new javafx.scene.control.Tooltip("Không khả dụng trong chế độ chơi nội bộ. Hai người có thể thỏa thuận trực tiếp!"));
+            }
+            if (chatButton != null) {
+                chatButton.setDisable(true);
+                chatButton.setOpacity(0.5);
+                javafx.scene.control.Tooltip.install(chatButton, 
+                    new javafx.scene.control.Tooltip("Không cần chat khi chơi cùng máy!"));
+            }
+            // Pause button giữ nguyên - có thể dùng để tạm dừng local
+            // Undo button giữ nguyên - có thể hoàn tác
+            // Resign button giữ nguyên - người chơi hiện tại có thể đầu hàng
+            // New game button giữ nguyên - chơi lại
+            // Exit room button giữ nguyên - về home
+        } else {
+            // Enable lại các nút cho online game
+            if (drawButton != null) {
+                drawButton.setDisable(false);
+                drawButton.setOpacity(1.0);
+                javafx.scene.control.Tooltip.uninstall(drawButton, null);
+            }
+            if (chatButton != null) {
+                chatButton.setDisable(false);
+                chatButton.setOpacity(1.0);
+                javafx.scene.control.Tooltip.uninstall(chatButton, null);
+            }
         }
     }
 
@@ -877,6 +987,10 @@ public class MainController implements Initializable {
             gamePanelView.setVisible(true);
             gamePanelView.setManaged(true);
         }
+        
+        // Đảm bảo enable lại buttons cho online game
+        updateButtonsForLocalGame(false);
+        
         setBoardInteractivity(true);
         setPlayerInfoVisible(true);
         setPlayerInfoVisible(true);
@@ -914,7 +1028,7 @@ public class MainController implements Initializable {
     }
 
     private void requestNewGame() {
-        if (!session.isConnected()) {
+        if (session.isLocalGame() || !session.isConnected()) {
             // Local game - reset ngay và start timer luôn
             resetGame(false, true);
             return;
@@ -941,12 +1055,14 @@ public class MainController implements Initializable {
             return;
         }
 
-        if (!session.isConnected()) {
+        if (session.isLocalGame() || !session.isConnected()) {
             // Local game - chỉ cần set result
-            game.setResult(
-                    session.getPlayerColor() == Color.WHITE ? GameResult.CHECKMATE_BLACK : GameResult.CHECKMATE_WHITE);
-            moveItems.add("[Đầu hàng - " + session.getPlayerName() + "]");
-            setTip("Bạn đã đầu hàng.");
+            String currentPlayer = game.getTurn() == Color.WHITE ? "Người chơi 1 (Trắng)" : "Người chơi 2 (Đen)";
+            Color loser = game.getTurn();
+            Color winner = loser.opposite();
+            game.setResult(winner == Color.WHITE ? GameResult.CHECKMATE_WHITE : GameResult.CHECKMATE_BLACK);
+            moveItems.add("[Đầu hàng - " + currentPlayer + "]");
+            setTip(currentPlayer + " đã đầu hàng. " + (winner == Color.WHITE ? "Trắng" : "Đen") + " thắng!");
             updateStatusLabels();
             renderBoardFromModel();
             stopTimer();
@@ -958,15 +1074,17 @@ public class MainController implements Initializable {
         Color winner = session.getPlayerColor().opposite();
         game.setResult(winner == Color.WHITE ? GameResult.CHECKMATE_WHITE : GameResult.CHECKMATE_BLACK);
 
-        moveItems.add("[Đầu hàng - " + session.getPlayerName() + "]");
+        moveItems.add("[Đầu hàng - Bạn]");
         setTip("Bạn đã đầu hàng. " + session.getOpponentName() + " thắng!");
         updateStatusLabels();
         renderBoardFromModel();
         stopTimer();
 
         // Gửi resign signal cho đối thủ
-        // Gửi resign signal cho đối thủ
-        sendSystemEvent("resign");
+        JsonObject payload = new JsonObject();
+        payload.addProperty("event", "resign");
+        payload.addProperty("from", session.getPlayerName());
+        sendSystemCommand(payload);
     }
 
     private void handleDrawOffer() {
@@ -974,13 +1092,16 @@ public class MainController implements Initializable {
             setTip("Ván cờ đã kết thúc.");
             return;
         }
-        if (!session.isConnected()) {
-            setTip("Chế độ chơi đơn không hỗ trợ cầu hòa.");
+        if (session.isLocalGame() || !session.isConnected()) {
+            setTip("Chế độ chơi nội bộ không hỗ trợ cầu hòa. Bạn có thể thỏa thuận trực tiếp!");
             return;
         }
         
         // Gửi yêu cầu cầu hòa
-        sendSystemEvent("draw_offer");
+        JsonObject payload = new JsonObject();
+        payload.addProperty("event", "draw_offer");
+        payload.addProperty("from", session.getPlayerName());
+        sendSystemCommand(payload);
         setTip("Đã gửi lời mời cầu hòa. Chờ đối thủ...");
     }
 
@@ -993,10 +1114,16 @@ public class MainController implements Initializable {
 
             alert.showAndWait().ifPresent(type -> {
                 if (type == javafx.scene.control.ButtonType.OK) {
-                    sendSystemEvent("draw_accept");
+                    JsonObject payload = new JsonObject();
+                    payload.addProperty("event", "draw_accept");
+                    payload.addProperty("from", session.getPlayerName());
+                    sendSystemCommand(payload);
                     handleDrawResult();
                 } else {
-                    sendSystemEvent("draw_reject");
+                    JsonObject payload = new JsonObject();
+                    payload.addProperty("event", "draw_reject");
+                    payload.addProperty("from", session.getPlayerName());
+                    sendSystemCommand(payload);
                 }
             });
         });
@@ -1035,7 +1162,7 @@ public class MainController implements Initializable {
         // Kiểm tra trong P2P mode: chỉ undo được khi có ít nhất 2 moves (1 move của
         // mình + 1 move của đối thủ)
         // Hoặc cho phép undo ngay cả khi chỉ có 1 move (nếu là move của mình)
-        if (session.isConnected() && game.getHistory().size() < 1) {
+        if (!session.isLocalGame() && session.isConnected() && game.getHistory().size() < 1) {
             setTip("Chưa có nước đi nào để hoàn tác.");
             return;
         }
@@ -1049,8 +1176,11 @@ public class MainController implements Initializable {
             clearHighlights();
 
             // Trong P2P mode, gửi signal cho đối thủ để đồng bộ
-            if (session.isConnected()) {
-                sendSystemEvent("undo");
+            if (!session.isLocalGame() && session.isConnected()) {
+                JsonObject payload = new JsonObject();
+                payload.addProperty("event", "undo");
+                payload.addProperty("from", session.getPlayerName());
+                sendSystemCommand(payload);
                 setTip("Đã hoàn tác nước đi. Đang chờ đối thủ đồng bộ...");
             } else {
                 setTip("Đã hoàn tác nước đi.");
@@ -1064,7 +1194,10 @@ public class MainController implements Initializable {
         if (!ensureConnected())
             return;
         setTip("Đang tạo phòng mới...");
-        sendSystemEvent("create_room");
+        JsonObject payload = new JsonObject();
+        payload.addProperty("event", "create_room");
+        payload.addProperty("from", session.getPlayerName());
+        sendSystemCommand(payload);
     }
 
     private void handleJoinRoom() {
@@ -1088,7 +1221,10 @@ public class MainController implements Initializable {
         if (!ensureConnected())
             return;
         setTip("Đang tìm đối thủ...");
-        sendSystemEvent("quick_match");
+        JsonObject payload = new JsonObject();
+        payload.addProperty("event", "quick_match");
+        payload.addProperty("from", session.getPlayerName());
+        sendSystemCommand(payload);
     }
 
     private void updateStatusLabels() {
@@ -1096,7 +1232,8 @@ public class MainController implements Initializable {
             Color currentTurn = game.getTurn();
             String text = currentTurn == Color.WHITE ? "Trắng" : "Đen";
 
-            if (session.isConnected()) {
+            // Chỉ hiển thị thông tin "Lượt của BẠN" khi chơi online (không phải local game)
+            if (!session.isLocalGame() && session.isConnected()) {
                 if (session.getPlayerColor() == currentTurn) {
                     text += " (Lượt của BẠN)";
                 } else {
@@ -1196,7 +1333,8 @@ public class MainController implements Initializable {
         }
 
         // Kiểm tra nếu không phải lượt của mình (trong P2P mode)
-        if (session.isConnected() && session.getPlayerColor() != game.getTurn()) {
+        // Trong local game, cả 2 người đều có thể chơi
+        if (!session.isLocalGame() && session.isConnected() && session.getPlayerColor() != game.getTurn()) {
             Color currentTurn = game.getTurn();
             String message = "Chưa đến lượt của bạn! Lượt hiện tại: " +
                     (currentTurn == Color.WHITE ? "Trắng" : "Đen");
@@ -1235,6 +1373,7 @@ public class MainController implements Initializable {
         // Nếu click vào quân đúng lượt -> chọn quân đó và highlight
         if (piece.getColor() == game.getTurn()) {
             selectedFrom = pos;
+            currentLegalMoves = game.legalMovesFor(pos); // QUAN TRỌNG: Update legal moves!
             highlightMoves(pos, currentLegalMoves);
         }
     }
@@ -1310,7 +1449,8 @@ public class MainController implements Initializable {
         }
 
         // Kiểm tra nếu không phải lượt của mình (trong P2P mode)
-        if (session.isConnected() && session.getPlayerColor() != game.getTurn()) {
+        // Trong local game, cả 2 người đều có thể chơi
+        if (!session.isLocalGame() && session.isConnected() && session.getPlayerColor() != game.getTurn()) {
             Color currentTurn = game.getTurn();
             String message = "Chưa đến lượt của bạn! Lượt hiện tại: " +
                     (currentTurn == Color.WHITE ? "Trắng" : "Đen");
@@ -1471,7 +1611,7 @@ public class MainController implements Initializable {
     }
 
     private void sendMoveToPeer(Move move) {
-        if (!session.isConnected()) return;
+        if (session.isLocalGame() || !session.isConnected()) return;
 
         // Attach current time to move for sync
         move.setTimes(whiteTimeSeconds, blackTimeSeconds);

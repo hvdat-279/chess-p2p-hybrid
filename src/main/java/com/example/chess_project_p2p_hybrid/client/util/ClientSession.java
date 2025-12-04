@@ -23,6 +23,7 @@ public final class ClientSession {
     private ChatController chatController;
     private boolean newGameRequestPending = false;
     private String newGameRequestFrom = null;
+    private boolean isLocalGame = false; // Flag để phân biệt local game (2 người 1 máy) vs online game
 
     private ClientSession() {}
 
@@ -121,6 +122,14 @@ public final class ClientSession {
         this.newGameRequestFrom = null;
     }
 
+    public boolean isLocalGame() {
+        return isLocalGame;
+    }
+
+    public void setLocalGame(boolean localGame) {
+        this.isLocalGame = localGame;
+    }
+
     public void disconnect() {
         if (chessClient != null) {
             chessClient.shutdown();
@@ -132,5 +141,6 @@ public final class ClientSession {
         mainController = null;
         chatController = null;
         clearNewGameRequest();
+        isLocalGame = false;
     }
 }

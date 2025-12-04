@@ -151,28 +151,31 @@ public class GameMessageHandler implements MessageHandler {
     }
 
     private void handleSystemEvent(String event, JsonObject payload, String sender) {
+        // Ưu tiên lấy "from" từ payload (nếu có), nếu không thì dùng sender từ message
+        String actualSender = payload.has("from") ? payload.get("from").getAsString() : sender;
+        
         switch (event) {
             case "room_created" -> handleRoomCreated(payload);
             case "joined" -> handleJoined(payload);
             case "player_joined" -> handlePlayerJoined(payload);
             case "game_start" -> handleGameStart(payload);
             case "undo" -> handleUndo();
-            case "new_game_request" -> handleNewGameRequest(sender);
-            case "new_game_accept" -> handleNewGameAccept(sender);
-            case "new_game_reject" -> handleNewGameReject(sender);
+            case "new_game_request" -> handleNewGameRequest(actualSender);
+            case "new_game_accept" -> handleNewGameAccept(actualSender);
+            case "new_game_reject" -> handleNewGameReject(actualSender);
             case "new_game" -> handleNewGame(); // Legacy support
-            case "resign" -> handleResign(sender);
+            case "resign" -> handleResign(actualSender);
             case "handshake" -> handleHandshake(payload);
-            case "pause_request" -> handlePauseRequest(sender);
+            case "pause_request" -> handlePauseRequest(actualSender);
             case "pause_accept" -> handlePauseAccept();
             case "pause_reject" -> handlePauseReject();
-            case "resume_request" -> handleResumeRequest(sender);
+            case "resume_request" -> handleResumeRequest(actualSender);
             case "resume_accept" -> handleResumeAccept();
             case "resume_reject" -> handleResumeReject();
-            case "timeout" -> handleTimeout(sender);
-            case "leave_room" -> handleLeaveRoom(sender);
+            case "timeout" -> handleTimeout(actualSender);
+            case "leave_room" -> handleLeaveRoom(actualSender);
             case "opponent_left" -> handleOpponentLeft();
-            case "draw_offer" -> handleDrawOffer(sender);
+            case "draw_offer" -> handleDrawOffer(actualSender);
             case "draw_accept" -> handleDrawAccept();
             case "draw_reject" -> handleDrawReject();
             case "error" -> handleError(payload);
@@ -392,6 +395,15 @@ public class GameMessageHandler implements MessageHandler {
             if (onMoveReceived != null) {
                 javafx.application.Platform.runLater(() -> {
                     onMoveReceived.run();
+                    // Hiển thị notification
+                    if (session.getMainController() != null) {
+                        session.getMainController().showNotification(
+                            "Hoàn tác", 
+                            "Đối thủ đã hoàn tác", 
+                            "Đối thủ đã hoàn tác nước đi. Lượt hiện tại: " +
+                                (game.getTurn() == Color.WHITE ? "Trắng" : "Đen")
+                        );
+                    }
                 });
             }
 
@@ -522,6 +534,12 @@ public class GameMessageHandler implements MessageHandler {
                     if (onGameStart != null) {
                         onGameStart.run();
                     }
+                    // Hiển thị notification
+                    session.getMainController().showNotification(
+                        "Ván mới", 
+                        "Đã đồng ý! ✅", 
+                        "Đối thủ đã đồng ý. Ván mới bắt đầu!"
+                    );
                 });
             }
 
@@ -543,6 +561,17 @@ public class GameMessageHandler implements MessageHandler {
         if (session.isNewGameRequestPending()) {
             session.clearNewGameRequest();
             updateStatus("Đối thủ đã từ chối yêu cầu ván mới.");
+            
+            // Hiển thị notification
+            if (session.getMainController() != null) {
+                javafx.application.Platform.runLater(() -> {
+                    session.getMainController().showNotification(
+                        "Từ chối", 
+                        "Không chơi ván mới ❌", 
+                        "Đối thủ đã từ chối yêu cầu ván mới."
+                    );
+                });
+            }
         } else {
             updateStatus("Đối thủ đã từ chối ván mới.");
         }
@@ -573,19 +602,21 @@ public class GameMessageHandler implements MessageHandler {
         if (session.getMainController() != null) {
             javafx.application.Platform.runLater(() -> {
                 // Thêm resign vào move history
-                session.getMainController().getMoveItems().add("[Resign - " + player + "]");
+                session.getMainController().getMoveItems().add("[Đầu hàng - " + player + "]");
                 // Update UI qua callback
                 if (onMoveReceived != null) {
                     onMoveReceived.run();
                 }
+                // Hiển thị notification
+                session.getMainController().showNotification(
+                    "Kết thúc", 
+                    player + " đã đầu hàng!", 
+                    "Bạn giành chiến thắng! 🎉"
+                );
             });
         }
 
         updateStatus(player + " đã đầu hàng. Bạn thắng!");
-        
-        if (session.getMainController() != null) {
-            session.getMainController().showNotification("Kết thúc", player + " đã đầu hàng!", "Bạn giành chiến thắng.");
-        }
     }
 
     private void handleError(JsonObject payload) {
@@ -618,13 +649,29 @@ public class GameMessageHandler implements MessageHandler {
 
     private void handlePauseAccept() {
         if (session.getMainController() != null) {
-            javafx.application.Platform.runLater(() -> session.getMainController().setGamePaused(true));
+            javafx.application.Platform.runLater(() -> {
+                session.getMainController().setGamePaused(true);
+                session.getMainController().showNotification(
+                    "Tạm dừng", 
+                    "Đã tạm dừng", 
+                    "Đối thủ đã đồng ý tạm dừng trận đấu."
+                );
+            });
         }
         updateStatus("Đối thủ đã đồng ý tạm dừng.");
     }
 
     private void handlePauseReject() {
         updateStatus("Đối thủ từ chối tạm dừng.");
+        if (session.getMainController() != null) {
+            javafx.application.Platform.runLater(() -> {
+                session.getMainController().showNotification(
+                    "Từ chối", 
+                    "Không thể tạm dừng", 
+                    "Đối thủ đã từ chối yêu cầu tạm dừng."
+                );
+            });
+        }
     }
 
     private void handleResumeRequest(String sender) {
@@ -635,13 +682,29 @@ public class GameMessageHandler implements MessageHandler {
 
     private void handleResumeAccept() {
         if (session.getMainController() != null) {
-            javafx.application.Platform.runLater(() -> session.getMainController().setGamePaused(false));
+            javafx.application.Platform.runLater(() -> {
+                session.getMainController().setGamePaused(false);
+                session.getMainController().showNotification(
+                    "Tiếp tục", 
+                    "Trận đấu tiếp tục", 
+                    "Đối thủ đã đồng ý tiếp tục trận đấu."
+                );
+            });
         }
         updateStatus("Đối thủ đã đồng ý tiếp tục.");
     }
 
     private void handleResumeReject() {
         updateStatus("Đối thủ từ chối tiếp tục.");
+        if (session.getMainController() != null) {
+            javafx.application.Platform.runLater(() -> {
+                session.getMainController().showNotification(
+                    "Từ chối", 
+                    "Không thể tiếp tục", 
+                    "Đối thủ đã từ chối yêu cầu tiếp tục."
+                );
+            });
+        }
     }
 
     private void handleTimeout(String sender) {
@@ -665,13 +728,15 @@ public class GameMessageHandler implements MessageHandler {
             javafx.application.Platform.runLater(() -> {
                 session.getMainController().getMoveItems().add("[Hết giờ - " + sender + "]");
                 if (onMoveReceived != null) onMoveReceived.run(); // Update UI
+                // Hiển thị notification
+                session.getMainController().showNotification(
+                    "Kết thúc", 
+                    "Hết giờ! ⏰", 
+                    msg
+                );
             });
         }
         updateStatus(msg);
-        
-        if (session.getMainController() != null) {
-            session.getMainController().showNotification("Kết thúc", "Hết giờ!", msg);
-        }
     }
 
 

@@ -80,8 +80,8 @@ public class GameSyncManager {
             return false;
         }
         
-        // Kiểm tra turn - CHẶT CHẼ HƠN
-        if (session.isConnected()) {
+        // Kiểm tra turn - CHẶT CHẼ HƠN (chỉ cho online game, không check trong local game)
+        if (!session.isLocalGame() && session.isConnected()) {
             Color myColor = session.getPlayerColor();
             Color currentTurn = game.getTurn();
             
@@ -177,7 +177,7 @@ public class GameSyncManager {
      * Kiểm tra xem có phải lượt của player không.
      */
     public boolean isMyTurn() {
-        if (!session.isConnected()) return true; // Local game
+        if (session.isLocalGame() || !session.isConnected()) return true; // Local game - luôn true
         return session.getPlayerColor() == game.getTurn();
     }
     

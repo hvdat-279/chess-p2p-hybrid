@@ -70,13 +70,13 @@
                                 <Font size="16.0"/>
                             </font>
                         </Button>
-                        <Button fx:id="pvcButton" mnemonicParsing="false" prefHeight="46.0" prefWidth="200.0"
-                                style="-fx-text-fill: #ecf0f1; -fx-background-color: transparent; -fx-font-size: 16px; -fx-alignment: center-left; -fx-padding: 12 28; -fx-max-width: infinity;"
-                                text="Đấu máy (PvC)">
-                            <font>
-                                <Font size="16.0"/>
-                            </font>
-                        </Button>
+<!--                        <Button fx:id="pvcButton" mnemonicParsing="false" prefHeight="46.0" prefWidth="200.0"-->
+<!--                                style="-fx-text-fill: #ecf0f1; -fx-background-color: transparent; -fx-font-size: 16px; -fx-alignment: center-left; -fx-padding: 12 28; -fx-max-width: infinity;"-->
+<!--                                text="Đấu máy (PvC)">-->
+<!--                            <font>-->
+<!--                                <Font size="16.0"/>-->
+<!--                            </font>-->
+<!--                        </Button>-->
                         <Button fx:id="chatButton" mnemonicParsing="false" prefHeight="46.0" prefWidth="200.0"
                                 style="-fx-text-fill: #ecf0f1; -fx-background-color: transparent; -fx-font-size: 16px; -fx-alignment: center-left; -fx-padding: 12 28; -fx-max-width: infinity;"
                                 text="Phòng chat">
@@ -84,13 +84,13 @@
                                 <Font size="16.0"/>
                             </font>
                         </Button>
-                        <Button fx:id="howToPlayButton" mnemonicParsing="false" prefHeight="46.0" prefWidth="200.0"
-                                style="-fx-text-fill: #ecf0f1; -fx-background-color: transparent; -fx-font-size: 16px; -fx-alignment: center-left; -fx-padding: 12 28; -fx-max-width: infinity;"
-                                text="Hướng dẫn chơi">
-                            <font>
-                                <Font size="16.0"/>
-                            </font>
-                        </Button>
+<!--                        <Button fx:id="howToPlayButton" mnemonicParsing="false" prefHeight="46.0" prefWidth="200.0"-->
+<!--                                style="-fx-text-fill: #ecf0f1; -fx-background-color: transparent; -fx-font-size: 16px; -fx-alignment: center-left; -fx-padding: 12 28; -fx-max-width: infinity;"-->
+<!--                                text="Hướng dẫn chơi">-->
+<!--                            <font>-->
+<!--                                <Font size="16.0"/>-->
+<!--                            </font>-->
+<!--                        </Button>-->
                         <Pane VBox.vgrow="ALWAYS"/>
                         <Button fx:id="exitButton" mnemonicParsing="false" prefHeight="46.0" prefWidth="200.0"
                                 style="-fx-text-fill: #e74c3c; -fx-background-color: rgba(231, 76, 60, 0.15); -fx-font-size: 16px; -fx-alignment: center-left; -fx-padding: 12 28; -fx-max-width: infinity; -fx-background-radius: 0;"
